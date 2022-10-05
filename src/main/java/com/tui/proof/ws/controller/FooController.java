@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FooController {
 
+  @Autowired
+  ClientRepository clientRepository;
+  @Autowired
+  OrderRepository orderRepository;
+
+
   @GetMapping("/")
   void test() {
     log.info("Foo controller");
