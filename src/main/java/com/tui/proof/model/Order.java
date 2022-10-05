@@ -32,7 +32,7 @@ public class Order {
   private Instant timestamp;
   private double PILOTES_PRICE = 1.33;
 
-  public void recomputeOrderTotal() {
+  public void updateOrderTotal() {
     this.orderTotal = computeOrderTotal(pilotes);
   }
 
