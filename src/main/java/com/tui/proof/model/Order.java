@@ -1,36 +1,51 @@
 package com.tui.proof.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tui.proof.validator.OneOf;
-import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.*;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.Date;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Table(name = "orders")
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
   @Id
-  @GeneratedValue(generator="system-uuid")
-  @GenericGenerator(name="system-uuid", strategy = "uuid")
+  @GeneratedValue(generator="hibernate-uuid")
+  @GenericGenerator(name="hibernate-uuid", strategy = "uuid2")
+  @Schema(hidden = true)
   private String number;
   private Address deliveryAddress;
   @Min(value = 5, message = "pilotes should not be less than 5")
   @Max(value = 15, message = "pilotes should not be greater than 15")
   @OneOf(value = {5, 10, 15}, message = "pilotes must be 5, 10 or 15")
   private int pilotes;
+  @Schema(hidden = true)
   private double orderTotal;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Instant timestamp;
+  @JsonIgnore
   private double PILOTES_PRICE = 1.33;
+  @Schema(hidden = true)
+  private String clientId;
 
   public void updateOrderTotal() {
     this.orderTotal = computeOrderTotal(pilotes);
@@ -45,5 +60,17 @@ public class Order {
     return round(orderTotal);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+    Order order = (Order) o;
+    return number != null && Objects.equals(number, order.number);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }
 
