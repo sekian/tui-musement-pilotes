@@ -41,15 +41,16 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                .authorizeRequests(authorizeRequests -> authorizeRequests
                         .antMatchers("/api/auth/**", "/swagger-ui-custom.html" ,"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**",
                                 "/swagger-ui/index.html*","/api-docs/**", "/modifyOrderBody", "/createOrder", "/createOrderBody", "/api/order/**", "/api/order*",
-                                "/api/user*")
+                                "/api/user*", "/api/search", "/h2-console/**", "/register", "/console/**")
                         .permitAll()
 //                        .antMatchers(HttpMethod.GET,"/api/order").authenticated()
                         .anyRequest()
                         .authenticated()
-                )
+                ).headers().frameOptions().sameOrigin().and()
+
                 .cors().disable()
                 .csrf().disable()
                 .formLogin().disable()
@@ -70,26 +71,12 @@ public class SecurityConfiguration {
         manager
                 .createUser(User.builder()
                         .passwordEncoder(password -> password)
-                        .username("john")
-                        .password("password")
-                        .authorities("USER")
-                        .roles("USER").build());
-        manager
-                .createUser(User.builder()
-                        .passwordEncoder(password -> password)
-                        .username("jane")
-                        .password("password")
+                        .username("admin")
+                        .password("admin")
                         .authorities("USER")
                         .roles("USER").build());
         return manager;
     }
-
-//    @Bean
-//    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-//        final Properties users = new Properties();
-//        users.put("user","pass,ROLE_USER,enabled"); //add whatever other user you need
-//        return new InMemoryUserDetailsManager(users);
-//    }
 
     @Bean
     JwtDecoder jwtDecoder() {
