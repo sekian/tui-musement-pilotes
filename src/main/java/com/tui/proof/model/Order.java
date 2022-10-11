@@ -54,9 +54,9 @@ public class Order {
 
   @JsonIgnore
   private static double PILOTES_PRICE = 1.33;
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="clientId", nullable=false)
+//  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @ToString.Exclude
   @Schema(hidden = true)
   @JsonView(Views.Public.class)

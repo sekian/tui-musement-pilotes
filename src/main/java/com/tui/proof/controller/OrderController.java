@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.List;
 
 @Log4j2
 @RestController
@@ -39,19 +41,46 @@ public class OrderController {
   @JsonView(Views.Public.class)
   @RequestMapping(value="/order", method=RequestMethod.POST)
   ResponseEntity<Order> createOrderBody(@Valid @RequestBody(required=false) Order order) {
-    return orderService.save(order);
+    try {
+      Order _order = orderService.createOrder(order);
+      return new ResponseEntity<>(_order, HttpStatus.CREATED);
+    } catch (Exception e) {
+      log.error(e);
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
-
+  @JsonView(Views.Public.class)
   @RequestMapping(value="/order/{id}", method=RequestMethod.PUT)
-  ResponseEntity<?> modifyOrderBody(@PathVariable("id") String id, @Valid @RequestBody(required=false) Order order) {
-    return orderService.put(id);
+  ResponseEntity<?> modifyOrderBody(@PathVariable("id") String id, @Valid @RequestBody(required=false) Order newOrder) {
+    try {
+      Order currOrder = orderService.getOrder(id);
+      if (currOrder == null) {
+        return new ResponseEntity<>("Provided id does not match any record in the database", HttpStatus.NOT_FOUND);
+      }
+      if (!orderService.isUpdatable(currOrder)) {
+        return new ResponseEntity<>("Orders can only be updated during the 5 minutes after creation", HttpStatus.FORBIDDEN);
+      }
+      Order _order = orderService.updateOrder(currOrder, newOrder);
+      log.info(_order.toString());
+      return new ResponseEntity<>(_order, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error(e);
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   @JsonView(Views.Public.class)
   @RequestMapping(value="/search", method=RequestMethod.GET)
   @Parameter(name = "username", hidden = true)
   @Parameter(name = "password", hidden = true)
-  ResponseEntity<?> searchByClient(@ParameterObject Client client) {
-    log.info(client);
-    return orderService.searchByClient(client);
+  @Parameter(name = "orders", hidden = true)
+  ResponseEntity<?> searchOrdersByClient(@ParameterObject Client client) {
+    try {
+      log.info(client);
+      List<Order> orders = orderService.searchByClient(client);
+      return new ResponseEntity<>(orders, HttpStatus.OK);
+    } catch (Exception e) {
+      log.error(e);
+      return new ResponseEntity<>("INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

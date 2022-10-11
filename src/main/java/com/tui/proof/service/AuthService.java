@@ -2,13 +2,6 @@ package com.tui.proof.service;
 
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.tui.proof.model.Client;
-import com.tui.proof.model.Order;
-import com.tui.proof.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -17,7 +10,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
@@ -32,20 +24,16 @@ public class AuthService {
         this.encoder = encoder;
     }
 
-    public ResponseEntity<String> get(Client user) {
+    public String getJWT(Client user) {
         UserDetails userDetails = inMemoryUserDetailsManager.loadUserByUsername(user.getUsername());
         if (user.getPassword().equalsIgnoreCase(userDetails.getPassword())) {
-//            String text = MessageFormat.format("You''re about to delete {0} rows.", 5);
             String token = generateToken(userDetails);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("X-AUTH-TOKEN", token);
             JSONObject body = new JSONObject();
             body.put("token", token);
             body.put("clientId", user.getClientId());
-            return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_JSON).body(body.toString());
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).contentType(MediaType.APPLICATION_JSON).body("Invalid username or password");
+            return body.toString();
         }
+        return null;
     }
 
     private String generateToken(UserDetails userDetails) {

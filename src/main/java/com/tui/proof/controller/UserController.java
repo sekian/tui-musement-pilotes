@@ -1,25 +1,19 @@
 package com.tui.proof.controller;
 
 import com.tui.proof.model.Client;
-import com.tui.proof.repository.ClientRepository;
 import com.tui.proof.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.util.ArrayList;
 
 @RequestMapping("/api/user")
 @RestController
@@ -50,6 +44,21 @@ public class UserController {
     @Operation(summary = "Create user", description = "Create user. The operation returns back the user details")
     @RequestMapping(value="", method=RequestMethod.POST)
     public ResponseEntity<?> createUser(@Valid @RequestBody(required=false) Client client) {
-        return userService.post(client);
+        try {
+            Client _client = userService.createUser(client);
+            return new ResponseEntity<>(_client, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            log.error(e);
+            ConstraintViolationException cause = (ConstraintViolationException) e.getCause();
+            String failedField = cause.getConstraintName();
+            return new ResponseEntity<>(e.getCause().getMessage()+"\n"+failedField, HttpStatus.BAD_REQUEST);
+        }
+        catch (IllegalArgumentException e) {
+            log.error(e);
+            return new ResponseEntity<>(e.toString(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error(e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

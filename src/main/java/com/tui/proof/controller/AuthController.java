@@ -10,15 +10,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/auth")
 @RestController
 @Tag(name = "Authentication", description = "Authentication API. Supports getting the clientId and a temporary JWT token associated to a registered account.")
-public class AuthenticationController {
+public class AuthController {
     @Autowired
     AuthService authService;
 
@@ -28,8 +25,14 @@ public class AuthenticationController {
                     mediaType = "application/json", examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
                             value = "{\n" + "  \"username\": \"admin\",\n" + "  \"password\": \"admin\"\n" + "}",
                             summary = "User Authentication Example")))
-    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/login", method= RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> login(@RequestBody Client user) {
-        return authService.get(user);
+        String token = authService.getJWT(user);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("X-AUTH-TOKEN", token);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).contentType(MediaType.APPLICATION_JSON).body("Invalid username or password");
+        }
+        return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_JSON).body(token);
     }
 }

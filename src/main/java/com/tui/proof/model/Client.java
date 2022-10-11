@@ -54,6 +54,7 @@ public class Client {
 
   @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
   @Schema(hidden = true)
+  @JsonIgnore
   @ToString.Exclude
   private Set<Order> orders = new HashSet<>();
 
