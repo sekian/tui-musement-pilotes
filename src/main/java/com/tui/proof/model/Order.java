@@ -1,18 +1,19 @@
 package com.tui.proof.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.tui.proof.validator.OneOf;
+import com.tui.proof.view.Views;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
@@ -22,30 +23,44 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @Table(name = "orders")
+@ToString
 @Entity
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
   @Id
   @GeneratedValue(generator="hibernate-uuid")
   @GenericGenerator(name="hibernate-uuid", strategy = "uuid2")
   @Schema(hidden = true)
+  @JsonView(Views.Public.class)
   private String number;
+
+  @JsonView(Views.Public.class)
   private Address deliveryAddress;
+
+  @JsonView(Views.Public.class)
   @Min(value = 5, message = "pilotes should not be less than 5")
   @Max(value = 15, message = "pilotes should not be greater than 15")
   @OneOf(value = {5, 10, 15}, message = "pilotes must be 5, 10 or 15")
   private int pilotes;
+
+  @JsonView(Views.Public.class)
   @Schema(hidden = true)
   private double orderTotal;
+
+  @JsonView(Views.Public.class)
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Instant timestamp;
+
   @JsonIgnore
-  private double PILOTES_PRICE = 1.33;
+  private static double PILOTES_PRICE = 1.33;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name="clientId", nullable=false)
+  @ToString.Exclude
   @Schema(hidden = true)
-  private String clientId;
+  @JsonView(Views.Public.class)
+  private Client client;
 
   public void updateOrderTotal() {
     this.orderTotal = computeOrderTotal(pilotes);
@@ -72,5 +87,6 @@ public class Order {
   public int hashCode() {
     return getClass().hashCode();
   }
+
 }
 

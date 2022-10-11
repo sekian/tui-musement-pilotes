@@ -1,50 +1,67 @@
 package com.tui.proof.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.tui.proof.view.Views;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
-@Table(name = "clients")
+@Table(name = "clients",
+        uniqueConstraints = {
+        @UniqueConstraint(name = "username_unique", columnNames = "username")
+  }
+)
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Client {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Schema(hidden = true)
+  @JsonView(Views.Public.class)
   private long clientId;
 
-  @NotNull(message = "firstName cannot be null")
+//  @NotNull(message = "firstName cannot be null")
   @Size(max = 46, message = "firstName must be between 4 and 12 characters")
   private String firstName;
-  @NotNull(message = "lastName cannot be null")
+
+//  @NotNull(message = "lastName cannot be null")
   @Size(max = 46, message = "lastName must be between 4 and 12 characters")
   private String lastName;
+
   @Size(min = 4, max = 12, message = "telephone must be between 4 and 12 characters")
   private String telephone;
+
   @Email(message = "email should be valid")
   @Size(max = 62, message = "email must be no longer than 62 characters")
   private String email;
+
+//  @Column(unique=true)
   private String username;
+
   private String password;
+
   @Schema(hidden = true)
+  @JsonIgnore
   private String role = "USER";
 
-//  public Client(String username, String password, String role) {
-//    this.username = username;
-//    this.password = password;
-//    this.role = role;
-//  }
+  @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+  @Schema(hidden = true)
+  @ToString.Exclude
+  private Set<Order> orders = new HashSet<>();
+
+  public void setOrders(Set<Order> orders) {
+    this.orders = orders;
+    for (Order order : orders) {
+      order.setClient(this);
+    }
+  }
 }
 

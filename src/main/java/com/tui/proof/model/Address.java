@@ -1,5 +1,7 @@
 package com.tui.proof.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.tui.proof.view.Views;
 import lombok.Data;
 
 import javax.persistence.Embeddable;
@@ -8,6 +10,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @Embeddable
+@JsonView(Views.Public.class)
 public class Address {
   @NotNull(message = "street cannot be null")
   @Size(max = 95, message = "street must be between 4 and 12 characters")
