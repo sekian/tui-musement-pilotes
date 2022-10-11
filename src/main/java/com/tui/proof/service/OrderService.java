@@ -56,11 +56,15 @@ public class OrderService {
             Order _order = null;
             if (_OptionalOrder.isPresent()) {
                 Order getOrder = _OptionalOrder.get();
+                Instant orderCreationDatePlusMinutes = getOrder.getTimestamp().plusSeconds(updateWindow);
+                if (Instant.now().isAfter(orderCreationDatePlusMinutes)) {
+                    return new ResponseEntity<>("Cannot modify order data after 5 minutes", HttpStatus.BAD_REQUEST);
+                }
                 getOrder.updateOrderTotal();
                 _order = orderRepository.save(getOrder);
             }
             else {
-                return new ResponseEntity<>("id does not match any record in the database", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Provided id does not match any record in the database", HttpStatus.NOT_FOUND);
             }
             log.info(_order.toString());
             return new ResponseEntity<>(_order, HttpStatus.CREATED);
