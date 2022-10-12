@@ -49,7 +49,7 @@ public class Order {
   private double orderTotal;
 
   @JsonView(Views.Public.class)
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+//  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Instant timestamp;
 
   @JsonIgnore

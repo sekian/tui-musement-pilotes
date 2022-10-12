@@ -16,15 +16,10 @@ public class UserService {
 
     @Autowired
     ClientRepository clientRepository;
-
-    private final InMemoryUserDetailsManager inMemoryUserDetailsManager;
-
     @Autowired
-    public UserService(InMemoryUserDetailsManager inMemoryUserDetailsManager) {
-        this.inMemoryUserDetailsManager = inMemoryUserDetailsManager;
-    }
+    InMemoryUserDetailsManager inMemoryUserDetailsManager;
 
-    public UserDetails get(Authentication authentication) {
+    public UserDetails getUserDetails(Authentication authentication) {
         return inMemoryUserDetailsManager.loadUserByUsername(authentication.getName());
     }
 

@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -24,7 +23,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Properties;
 
 import org.springframework.security.core.userdetails.User;
 
@@ -42,15 +40,18 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeRequests(authorizeRequests -> authorizeRequests
-                        .antMatchers("/api/auth/**", "/swagger-ui-custom.html" ,"/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**",
-                                "/swagger-ui/index.html*","/api-docs/**", "/modifyOrderBody", "/createOrder", "/createOrderBody", "/api/order/**", "/api/order*",
-                                "/api/user*", "/api/search", "/h2-console/**", "/register", "/console/**")
-                        .permitAll()
-//                        .antMatchers(HttpMethod.GET,"/api/order").authenticated()
+                        .antMatchers("/swagger-ui-custom.html" ,"/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs/**", "/webjars/**", "/swagger-ui/index.html*","/api-docs/**")
+                                .permitAll()
+                        .antMatchers("/h2-console/**", "/register", "/console/**")
+                                .permitAll()
+                        .antMatchers("/api/auth/**", "/api/order/**", "/api/order*", "/api/user*")
+                                .permitAll()
+                        .antMatchers(HttpMethod.GET,"/api/search")
+                                .authenticated()
                         .anyRequest()
-                        .authenticated()
+                                .authenticated()
                 ).headers().frameOptions().sameOrigin().and()
-
                 .cors().disable()
                 .csrf().disable()
                 .formLogin().disable()

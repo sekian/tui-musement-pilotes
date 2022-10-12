@@ -26,7 +26,7 @@ public class UserController {
     @RequestMapping(value="/details", method=RequestMethod.GET)
     @SecurityRequirement(name = "Bearer Authentication")
     public UserDetails getUserAuth(Authentication authentication) {
-        return userService.get(authentication);
+        return userService.getUserDetails(authentication);
     }
 
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

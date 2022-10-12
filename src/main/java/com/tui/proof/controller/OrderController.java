@@ -6,6 +6,7 @@ import com.tui.proof.model.Order;
 import com.tui.proof.service.OrderService;
 import com.tui.proof.view.Views;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,10 @@ public class OrderController {
                           "  },\n" +
                           "  \"pilotes\": 15\n" +
                           "}",
-                  summary = "User Authentication Example")))
+                  summary = "Create new order")))
   @JsonView(Views.Public.class)
   @RequestMapping(value="/order", method=RequestMethod.POST)
-  ResponseEntity<Order> createOrderBody(@Valid @RequestBody(required=false) Order order) {
+  public ResponseEntity<Order> createOrderBody(@Valid @RequestBody(required=false) Order order) {
     try {
       Order _order = orderService.createOrder(order);
       return new ResponseEntity<>(_order, HttpStatus.CREATED);
@@ -49,9 +50,23 @@ public class OrderController {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          content = @io.swagger.v3.oas.annotations.media.Content(
+                  mediaType = "application/json", examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                  value = "{\n" +
+                          "  \"deliveryAddress\": {\n" +
+                          "    \"street\": \"Campus Nord Jordi Girona\",\n" +
+                          "    \"postcode\": \"08034\",\n" +
+                          "    \"city\": \"Barcelona\",\n" +
+                          "    \"country\": \"Spain\"\n" +
+                          "  },\n" +
+                          "  \"pilotes\": 15\n" +
+                          "}",
+                  summary = "Update existing order")))
   @JsonView(Views.Public.class)
   @RequestMapping(value="/order/{id}", method=RequestMethod.PUT)
-  ResponseEntity<?> modifyOrderBody(@PathVariable("id") String id, @Valid @RequestBody(required=false) Order newOrder) {
+  public ResponseEntity<?> modifyOrderBody(@PathVariable("id") String id, @Valid @RequestBody(required=false) Order newOrder) {
     try {
       Order currOrder = orderService.getOrder(id);
       if (currOrder == null) {
@@ -73,7 +88,8 @@ public class OrderController {
   @Parameter(name = "username", hidden = true)
   @Parameter(name = "password", hidden = true)
   @Parameter(name = "orders", hidden = true)
-  ResponseEntity<?> searchOrdersByClient(@ParameterObject Client client) {
+  @SecurityRequirement(name = "Bearer Authentication")
+  public ResponseEntity<?> searchOrdersByClient(@ParameterObject Client client) {
     try {
       log.info(client);
       List<Order> orders = orderService.searchByClient(client);
