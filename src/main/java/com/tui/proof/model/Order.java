@@ -1,7 +1,6 @@
 package com.tui.proof.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.tui.proof.validator.OneOf;
 import com.tui.proof.view.Views;
@@ -49,14 +48,12 @@ public class Order {
   private double orderTotal;
 
   @JsonView(Views.Public.class)
-//  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Instant timestamp;
 
   @JsonIgnore
   private static double PILOTES_PRICE = 1.33;
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="clientId", nullable=false)
-//  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @ToString.Exclude
   @Schema(hidden = true)
   @JsonView(Views.Public.class)

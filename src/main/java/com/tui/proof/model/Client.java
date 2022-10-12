@@ -28,11 +28,9 @@ public class Client {
   @JsonView(Views.Public.class)
   private long clientId;
 
-//  @NotNull(message = "firstName cannot be null")
   @Size(max = 46, message = "firstName must be between 4 and 12 characters")
   private String firstName;
 
-//  @NotNull(message = "lastName cannot be null")
   @Size(max = 46, message = "lastName must be between 4 and 12 characters")
   private String lastName;
 
@@ -43,7 +41,6 @@ public class Client {
   @Size(max = 62, message = "email must be no longer than 62 characters")
   private String email;
 
-//  @Column(unique=true)
   private String username;
 
   private String password;

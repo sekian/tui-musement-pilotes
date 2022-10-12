@@ -93,6 +93,7 @@ public class OrderController {
   @Parameter(name = "username", hidden = true)
   @Parameter(name = "password", hidden = true)
   @Parameter(name = "orders", hidden = true)
+  @Parameter(name = "clientId", hidden = true)
   @SecurityRequirement(name = "Bearer Authentication")
   @Operation(summary = "Search orders", description = "Search orders by client fields. This operation performs a partial search of every field. This operation is secured by JWT bearer token.")
   public ResponseEntity<?> searchOrdersByClient(@ParameterObject Client client) {

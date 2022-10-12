@@ -1,8 +1,6 @@
 package com.tui.proof.repository;
 
-import com.tui.proof.model.Address;
 import com.tui.proof.model.Client;
-import com.tui.proof.model.Order;
 import lombok.extern.log4j.Log4j2;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

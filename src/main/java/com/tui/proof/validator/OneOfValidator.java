@@ -21,10 +21,6 @@ public class OneOfValidator implements ConstraintValidator<OneOf, Integer> {
     public void initialize(OneOf constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
         int[] oneOf = constraintAnnotation.value();
-//        this.values = new ArrayList<>(oneOf.length);
-//        for (int i : oneOf) {
-//            values.add(i);
-//        }
         this.values = Arrays.stream(oneOf).boxed().collect(Collectors.toList());
         this.message = constraintAnnotation.message();
     }

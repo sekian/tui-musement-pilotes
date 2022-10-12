@@ -4,7 +4,6 @@ import com.nimbusds.jose.shaded.json.JSONObject;
 import com.tui.proof.model.Address;
 import com.tui.proof.model.Client;
 import com.tui.proof.model.Order;
-import com.tui.proof.service.AuthService;
 import com.tui.proof.service.OrderService;
 import lombok.extern.log4j.Log4j2;
 import org.hamcrest.Matchers;
@@ -24,7 +23,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
