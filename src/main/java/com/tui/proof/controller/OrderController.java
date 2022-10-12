@@ -5,8 +5,10 @@ import com.tui.proof.model.Client;
 import com.tui.proof.model.Order;
 import com.tui.proof.service.OrderService;
 import com.tui.proof.view.Views;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Order management", description = "Order API. Supports creating, updating and searching orders.")
 public class OrderController {
 
   @Autowired
@@ -28,7 +31,7 @@ public class OrderController {
                   mediaType = "application/json", examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
                   value = "{\n" +
                           "  \"client\": {\n" +
-                          "    \"clientId\": 0\n" +
+                          "    \"clientId\": 1\n" +
                           "  },\n" +
                           "  \"deliveryAddress\": {\n" +
                           "    \"street\": \"Campus Nord Jordi Girona\",\n" +
@@ -40,6 +43,7 @@ public class OrderController {
                           "}",
                   summary = "Create new order")))
   @JsonView(Views.Public.class)
+  @Operation(summary = "Create order", description = "Creates a new order. The order must be associated to a client id that exists.")
   @RequestMapping(value="/order", method=RequestMethod.POST)
   public ResponseEntity<Order> createOrderBody(@Valid @RequestBody(required=false) Order order) {
     try {
@@ -66,6 +70,7 @@ public class OrderController {
                   summary = "Update existing order")))
   @JsonView(Views.Public.class)
   @RequestMapping(value="/order/{id}", method=RequestMethod.PUT)
+  @Operation(summary = "Update order", description = "Updates the order associated to the given id. The order id must exist. The orders cannot be modified 5 minutes after creation.")
   public ResponseEntity<?> modifyOrderBody(@PathVariable("id") String id, @Valid @RequestBody(required=false) Order newOrder) {
     try {
       Order currOrder = orderService.getOrder(id);
@@ -89,6 +94,7 @@ public class OrderController {
   @Parameter(name = "password", hidden = true)
   @Parameter(name = "orders", hidden = true)
   @SecurityRequirement(name = "Bearer Authentication")
+  @Operation(summary = "Search orders", description = "Search orders by client fields. This operation performs a partial search of every field. This operation is secured by JWT bearer token.")
   public ResponseEntity<?> searchOrdersByClient(@ParameterObject Client client) {
     try {
       log.info(client);

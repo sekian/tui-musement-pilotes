@@ -4,6 +4,7 @@ import com.tui.proof.model.Client;
 import com.tui.proof.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/user")
 @RestController
 @Log4j2
+@Tag(name = "User management", description = "User API. Supports creating a user and retrieving user details associated to a JWT token.")
 public class UserController {
     @Autowired
     UserService userService;
 
-    @Operation(summary = "Get user details", description = "The operation returns the details of the user that is associated with the provided JWT token.")
+    @Operation(summary = "Get user details from a JWT", description = "The operation returns the details of the user that is associated with the provided JWT token.")
     @RequestMapping(value="/details", method=RequestMethod.GET)
     @SecurityRequirement(name = "Bearer Authentication")
     public UserDetails getUserAuth(Authentication authentication) {
@@ -41,7 +43,7 @@ public class UserController {
                             "  \"password\": \"1234\"\n" +
                             "}",
                     summary = "User Authentication Example")))
-    @Operation(summary = "Create user", description = "Create user. The operation returns back the user details")
+    @Operation(summary = "Create user", description = "Creates a new user. The operation returns back the user details.")
     @RequestMapping(value="", method=RequestMethod.POST)
     public ResponseEntity<?> createUser(@Valid @RequestBody(required=false) Client client) {
         try {

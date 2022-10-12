@@ -1,6 +1,5 @@
 package com.tui.proof.controller;
 
-//import com.tui.proof.model.User;
 import com.tui.proof.model.Client;
 import com.tui.proof.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +18,7 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
-    @Operation(summary = "User Authentication", description = "Authenticate the user and return the client identifier and a JWT token if the credentials are valid.")
+    @Operation(summary = "User authentication", description = "Authenticate the user and return the client identifier and a JWT token if the credentials are valid.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @io.swagger.v3.oas.annotations.media.Content(
                     mediaType = "application/json", examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
