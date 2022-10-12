@@ -2,7 +2,7 @@ package com.tui.proof.controller;
 
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.tui.proof.model.Client;
-import com.tui.proof.service.UserService;
+import com.tui.proof.service.AuthService;
 import lombok.extern.log4j.Log4j2;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -12,64 +12,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Log4j2
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(UserController.class)
+@WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class UserControllerTest {
+class AuthControllerTest {
     @MockBean
-    UserService userService;
+    AuthService authService;
 
     @Autowired
     MockMvc mockMvc;
 
     @Test
-    public void testCreateUser() throws Exception {
-        Client client = createTestClient();
-        client.setClientId(1);
-        Mockito.when(userService.createUser(any(Client.class))).thenReturn(client);
+    public void testLogin() throws Exception {
+        JSONObject resp = new JSONObject();
+        resp.put("clientId", 1);
+        resp.put("token", "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWRtaW4iLCJleHAiOjE2NjU1MTM5NzYsImlhdCI6MTY2NTUxMzY3Niwic2NvcGUiOiJST0xFX1VTRVIifQ.Q756eXeAdtytQ2qbZb_18UkfDX4eaFqU7gKYd-h6Xlmgyc1bs0DhMzhFzOXtjrCZJ6f0PnTSQ1RdChceg6BKz04ATOVGVWTgyUzpBcExDi28qfongLoV7gl42PUX6kP9Foz5tGO_7fscL4Elohn1qv0P531CSiKyRX0EEx_6FuJSSojJV7LCXjZM8uf8DjCUKagydWuUjsY912s1j007OIII__3fxlo2MUaUf6MzMwUvU63vHwAmwyiJuZl4qApi0YveS_DkeVh0fyXuXtjMe44uXShGcTiv6kG0qRfFHTS21kvzxzYJJUD2j-p8TjP4XEXpX-l1iMBxmXGjtIpLoQ");
+        Mockito.when(authService.getJWT(any(Client.class))).thenReturn(resp.toString());
 
         JSONObject body = new JSONObject();
-        body.put("firstName", "FirstName");
-        body.put("lastName", "LastName");
-        body.put("telephone", "123456789");
-        body.put("email", "example@example.com");
-        body.put("username", "neo");
-        body.put("password", "1234");
-        MvcResult result = mockMvc.perform(post("/api/user")
+        body.put("username", "admin");
+        body.put("password", "admin");
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
                         .content(body.toString())
                 )
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.clientId", Matchers.is(1)))
-                .andExpect(jsonPath(".username", Matchers.notNullValue()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(".clientId", Matchers.notNullValue()))
+                .andExpect(jsonPath(".token", Matchers.notNullValue()))
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         log.debug(content);
     }
-
-    public Client createTestClient() {
-        Client client = new Client();
-        client.setEmail("example@example.com");
-        client.setFirstName("FirstName");
-        client.setLastName("LastName");
-        client.setTelephone("123456789");
-        client.setUsername("neo");
-        client.setPassword("1234");
-        return client;
-    }
-
 }
